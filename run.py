@@ -7,6 +7,7 @@ import cv2
 import imutils
 import numpy as np
 from imutils.video import VideoStream
+from tensorflow import keras
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -84,7 +85,7 @@ weightsPath = "face_detector/res10_300x300_ssd_iter_140000.caffemodel"
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 print(str(datetime.now()), "Deplying......")
 # load the face mask detector model from disk
-maskNet = load_model("mask_detector.model")
+maskNet = keras.models.load_model("mask_detector.model")
 print(str(datetime.now()), "Model loaded")
 # initialize the video stream
 print("[System Call] starting video stream...")
