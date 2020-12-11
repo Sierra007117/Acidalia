@@ -1,18 +1,23 @@
 # import the necessary packages
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
-from imutils.video import VideoStream
-import numpy as np
-import imutils
-import time
-import cv2
 import os
+import time
+from datetime import datetime
+
+import cv2
+import imutils
+import numpy as np
+from imutils.video import VideoStream
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
 
 
 def detect_and_predict_mask(frame, faceNet, maskNet):
     # grab the dimensions of the frame and then construct a blob
     # from it
+    cv2.putText(frame, str(datetime.now()), (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224),
                                  (104.0, 177.0, 123.0))
@@ -20,7 +25,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
     # pass the blob through the network and obtain the face detections
     faceNet.setInput(blob)
     detections = faceNet.forward()
-    print(detections.shape)
+    print(str(datetime.now()), detections.shape)
 
     # initialize our list of faces, their corresponding locations,
     # and the list of predictions from our face mask network
@@ -88,9 +93,8 @@ vs = VideoStream(src=0).start()
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
-    # to have a maximum width of 400 pixels
     frame = vs.read()
-    frame = imutils.resize(frame, width=400)
+    frame = imutils.resize(frame, width=1000)
 
     # detect faces in the frame and determine if they are wearing a
     # face mask or not
