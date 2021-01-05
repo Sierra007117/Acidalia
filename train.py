@@ -1,22 +1,24 @@
 # import the necessary packages
-import os
-from datetime import datetime
-
-import matplotlib.pyplot as plt
-import numpy as np
-from imutils import paths
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelBinarizer
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-from tensorflow.keras.layers import (AveragePooling2D, Dense, Dropout, Flatten,
-                                     Input)
+from tensorflow.keras.layers import AveragePooling2D
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import Flatten
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.image import (ImageDataGenerator,
-                                                  img_to_array, load_img)
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from imutils import paths
+import matplotlib.pyplot as plt
+import numpy as np
+import os
 
 # initialize the initial learning rate, number of epochs to train for,
 # and batch size
@@ -27,7 +29,9 @@ BS = 32
 DIRECTORY = r"dataset"
 CATEGORIES = ["with_mask", "without_mask"]
 
-print(str(datetime.now()), "Loading training data")
+# grab the list of images in our dataset directory, then initialize
+# the list of data (i.e., images) and class images
+print("[INFO] loading images...")
 
 data = []
 labels = []
@@ -88,13 +92,13 @@ for layer in baseModel.layers:
     layer.trainable = False
 
 # compile our model
-print(str(datetime.now()), "Compiling model...")
+print("[INFO] compiling model...")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
               metrics=["accuracy"])
 
 # train the head of the network
-print(str(datetime.now()), "Training head...")
+print("[INFO] training head...")
 H = model.fit(
     aug.flow(trainX, trainY, batch_size=BS),
     steps_per_epoch=len(trainX) // BS,
@@ -103,7 +107,7 @@ H = model.fit(
     epochs=EPOCHS)
 
 # make predictions on the testing set
-print(str(datetime.now()), "Evaluating network...")
+print("[INFO] evaluating network...")
 predIdxs = model.predict(testX, batch_size=BS)
 
 # for each image in the testing set we need to find the index of the
@@ -115,7 +119,7 @@ print(classification_report(testY.argmax(axis=1), predIdxs,
                             target_names=lb.classes_))
 
 # serialize the model to disk
-print(str(datetime.now()), "Saving mask detector model...")
+print("[INFO] saving mask detector model...")
 model.save("mask_detector.model", save_format="h5")
 
 # plot the training loss and accuracy
